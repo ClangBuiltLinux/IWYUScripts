@@ -1,0 +1,13 @@
+[
+   { "include": ["@[\"<]asm-generic/unaligned.h[\">]", "private", "<asm/unaligned.h>", "public"] },
+   { "include": ["@[\"<]asm-generic/errno.h[\">]", "private", "<asm/errno.h>", "public"] },
+   { "include": ["@[\"<]asm-generic/rwonce.h[\">]", "private", "<asm/rwonce.h>", "public"] },
+   { "include": ["@[\"<]asm-generic/int-ll64.h[\">]", "private", "<linux/types.h>", "public"] },
+   { "include": ["@[\"<]asm-generic/bitops/.*[\">]", "private", "<linux/bitops.h>", "public"] },
+   { "include": ["@[\"<]asm/page_types.h[\">]", "private", "<asm/page.h>", "public"] },
+   { "include": ["@[\"<]asm/string_64.h[\">]", "private", "<linux/string.h>", "public"] },
+   { "include": ["@[\"<]asm-generic/errno-base.h[\">]", "private", "<asm/errno.h>", "public"] },
+   { "include": ["@[\"<]asm-generic/param.h[\">]", "private", "<asm/param.h>", "public"] },
+   { "include": ["@[\"<]asm?(-generic)?/percpu.h[\">]", "private", "<linux/percpu.h>", "public"] },
+]
+
