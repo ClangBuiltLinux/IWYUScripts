@@ -4,22 +4,29 @@ import os
 import sys
 import shutil
 
-def main(commands, specific, fixer_path):
+def main(commands, fixer_path, filter):
     with open (commands) as file:
-        cursed = ["vma.c", "setup.c", "nmi.c"]
+        cursed = ["vma.c", "irq.c", "nmi.c", "/x86/kernel/step.c", "setup.c",
+                "x86_init.c", "fpu/core.c", "fpu/xstate", "rethook.c",
+                "mtrr/generic.c", "trace.h", "mpparse.c", "init_64", "extable",
+                "kernel/cpu.c", "kernel/sys.c", "locking/mutex.c"]
+        
         data = json.load(file)
         dump = []
+        count = 0
         for part in data:
+            count +=1
             if any([badfile in part["file"] for badfile in cursed]): continue
-            if len(dump) == 5:
+            print(count)
+            if len(dump) == 10:
                 build_check()
                 while dump:
                     os.remove(dump.pop())
-            backup = perform_iwyu(fixer_path, part)
+            backup = perform_iwyu(fixer_path, part, filter)
             if backup:
                 dump.append(backup)
 
-def perform_iwyu(fixer_path, part):
+def perform_iwyu(fixer_path, part, filter):
     command = part['command'].split()
     orig = command[-1]
     nname = orig[:-1] + 'i'
@@ -41,17 +48,17 @@ def perform_iwyu(fixer_path, part):
         "-Xiwyu",
         "--max_line_length=30",
         "-Xiwyu",
-        "--mapping_file=./filter.imp",
+        f"--mapping_file={filter}",
         "-Xiwyu",
         "--no_fwd_decls"
     ]
     include_command = include + command[1:] + [f'2>&1 | {fixer_path}']
-    # print(include_command)
+
     os.system(' '.join(include_command))
 
     command[-2] = nname
     build_command = command + ['-E']
-    # print(part)
+
     try:
         subprocess.check_call(' '.join(build_command), shell=True)
         output = subprocess.check_output(f"wc -l ./{nname}", shell=True)
@@ -60,8 +67,6 @@ def perform_iwyu(fixer_path, part):
             print(new_size, old_size)
             raise ValueError
         subprocess.run(f"wc -l ./{nname} >> changes.txt", shell=True)
-        # subprocess.run(f"rm ./{nname}")
-        # subprocess.run("echo ??? >> changes.txt", shell=True)
 
     except:
         shutil.copy(backup_file_path, orig_path)
@@ -88,6 +93,6 @@ def build_check():
 
 if __name__ == '__main__':
     commands = sys.argv[1]
-    specific_file = sys.argv[2]
-    fixer_path = sys.argv[3]
-    main(commands, specific_file, fixer_path)
+    fixer_path = sys.argv[2]
+    filter = sys.argv[3]
+    main(commands, fixer_path, filter)
