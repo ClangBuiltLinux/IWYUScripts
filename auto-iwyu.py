@@ -6,11 +6,7 @@ import shutil
 
 def main(commands, fixer_path, filter):
     with open (commands) as file:
-        cursed = ["vma.c", "irq.c", "nmi.c", "/x86/kernel/step.c", "setup.c",
-                "x86_init.c", "fpu/core.c", "fpu/xstate", "rethook.c",
-                "mtrr/generic.c", "trace.h", "mpparse.c", "init_64", "extable",
-                "kernel/cpu.c", "kernel/sys.c", "locking/mutex.c"]
-        
+        cursed = []
         data = json.load(file)
         dump = []
         count = 0
@@ -22,11 +18,11 @@ def main(commands, fixer_path, filter):
                 build_check()
                 while dump:
                     os.remove(dump.pop())
-            backup = perform_iwyu(fixer_path, part, filter)
+            backup = perform_iwyu(fixer_path, part, filters)
             if backup:
                 dump.append(backup)
 
-def perform_iwyu(fixer_path, part, filter):
+def perform_iwyu(fixer_path, part, filters):
     command = part['command'].split()
     orig = command[-1]
     nname = orig[:-1] + 'i'
@@ -48,19 +44,25 @@ def perform_iwyu(fixer_path, part, filter):
         "-Xiwyu",
         "--max_line_length=30",
         "-Xiwyu",
-        f"--mapping_file={filter}",
+        "--no_fwd_decls",
         "-Xiwyu",
-        "--no_fwd_decls"
+        "--prefix_header_includes=keep",
     ]
+    for filter in filters:
+        include.append("-Xiwyu")
+        include.append(f"--mapping_file={filter}")
     include_command = include + command[1:] + [f'2>&1 | {fixer_path}']
+
+    #two passes
+
+    os.system(' '.join(include_command))
 
     os.system(' '.join(include_command))
 
     command[-2] = nname
     build_command = command + ['-E']
-
+    subprocess.check_call(' '.join(build_command), shell=True)
     try:
-        subprocess.check_call(' '.join(build_command), shell=True)
         output = subprocess.check_output(f"wc -l ./{nname}", shell=True)
         new_size = int(output.decode().strip().split()[0])
         if new_size >= old_size:
@@ -83,10 +85,10 @@ def build_check():
         print("arm works")
         subprocess.check_output("make LLVM=1 -j 128 defconfig all", shell=True)
         print("x86 works")
-        # subprocess.check_output("make ARCH=arm64 LLVM=1 -j 128 defconfig all", shell=True)
-        # print("arm64 works")
-        # subprocess.check_output("make ARCH=riscv LLVM=1 -j 128 defconfig all", shell=True)
-        # print("riscv works")
+        subprocess.check_output("make ARCH=arm64 LLVM=1 -j 128 defconfig all", shell=True)
+        print("arm64 works")
+        subprocess.check_output("make ARCH=riscv LLVM=1 -j 128 defconfig all", shell=True)
+        print("riscv works")
         
     except:
         exit()
@@ -94,5 +96,5 @@ def build_check():
 if __name__ == '__main__':
     commands = sys.argv[1]
     fixer_path = sys.argv[2]
-    filter = sys.argv[3]
-    main(commands, fixer_path, filter)
+    filters = sys.argv[3:]
+    main(commands, fixer_path, filters)
