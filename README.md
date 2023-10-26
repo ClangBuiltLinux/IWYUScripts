@@ -13,6 +13,6 @@ python build_intermediary.py compile_commands.json
 
 Once that is finished run
 ```bash
-python iwyu-kernel.py compile_commands.json ~/include-what-you-use/fix_includes.py ./filter.imp ./symbol.imp
+python iwyu-kernel.py compile_commands.json ~/include-what-you-use/fix_includes.py
 ```
-Update accordingly with the location of filter.imp, symbol.imp, and fix_includes.py.
+Update accordingly with the location of compile_commands.json and fix_includes.py.

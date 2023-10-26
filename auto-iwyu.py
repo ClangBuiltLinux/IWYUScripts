@@ -5,6 +5,10 @@ import sys
 import shutil
 
 def main(commands, fixer_path, filter):
+    dir = os.path.dirname(os.path.abspath(__file__))
+    filter.append(dir + '/filter.imp')
+    filter.append(dir + '/symbol.imp')
+
     with open (commands) as file:
         cursed = ["x86/events/intel/ds.c", "uncore_discovery.c", "x86/kernel/step.c", "acpi/cstate.c", "/x86/kernel/jump_label.c"]
         data = json.load(file)
@@ -23,7 +27,10 @@ def main(commands, fixer_path, filter):
                 dump.append(backup)
 
 def perform_iwyu(fixer_path, part, filters):
+
     command = part['command'].split()
+    os.chdir(part["directory"])
+
     orig = command[-1]
     nname = orig[:-1] + 'i'
     backup_file_path = './' + orig[:-2] + '_backup.c'
