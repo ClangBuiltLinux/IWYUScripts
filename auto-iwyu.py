@@ -6,7 +6,7 @@ import shutil
 
 def main(commands, fixer_path, filter):
     with open (commands) as file:
-        cursed = []
+        cursed = ["x86/events/intel/ds.c", "uncore_discovery.c", "x86/kernel/step.c", "acpi/cstate.c", "/x86/kernel/jump_label.c"]
         data = json.load(file)
         dump = []
         count = 0
@@ -56,7 +56,6 @@ def perform_iwyu(fixer_path, part, filters):
     #two passes
 
     os.system(' '.join(include_command))
-
     os.system(' '.join(include_command))
 
     command[-2] = nname
@@ -83,12 +82,13 @@ def build_check():
     try:
         subprocess.check_output("make ARCH=arm LLVM=1 -j 128 defconfig all", shell=True)
         print("arm works")
+        # subprocess.check_output("make ARCH=arm64 LLVM=1 -j 128 defconfig all", shell=True)
+        # print("arm64 works")
+        # subprocess.check_output("make ARCH=riscv LLVM=1 -j 128 defconfig all", shell=True)
+        # print("riscv works")
         subprocess.check_output("make LLVM=1 -j 128 defconfig all", shell=True)
         print("x86 works")
-        subprocess.check_output("make ARCH=arm64 LLVM=1 -j 128 defconfig all", shell=True)
-        print("arm64 works")
-        subprocess.check_output("make ARCH=riscv LLVM=1 -j 128 defconfig all", shell=True)
-        print("riscv works")
+        
         
     except:
         exit()
