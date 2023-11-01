@@ -3,29 +3,18 @@ import subprocess
 import os
 import argparse
 from pathlib import Path
-import shutil
 
-def main(commands, fixer_path, filter):
+def main(commands, fixer_path, filter, specific):
     dir = os.path.dirname(os.path.abspath(__file__))
     filter.append(dir + '/filter.imp')
     filter.append(dir + '/symbol.imp')
 
     with open (commands) as file:
-        cursed = ["x86/events/intel/ds.c", "uncore_discovery.c", "x86/kernel/step.c", "acpi/cstate.c", "/x86/kernel/jump_label.c"]
         data = json.load(file)
-        dump = []
-        count = 0
         for part in data:
-            count +=1
-            if any([badfile in part["file"] for badfile in cursed]): continue
-            print(count)
-            if len(dump) == 10:
-                build_check()
-                while dump:
-                    os.remove(dump.pop())
+            if specific not in part['file']: continue
             backup = perform_iwyu(fixer_path, part, filters)
-            if backup:
-                dump.append(backup)
+            break
 
 def perform_iwyu(fixer_path, part, filters):
 
@@ -34,7 +23,6 @@ def perform_iwyu(fixer_path, part, filters):
 
     orig = command[-1]
     nname = orig[:-1] + 'i'
-    backup_file_path = './' + orig[:-2] + '_backup.c'
 
     try:
         output = subprocess.check_output(f"wc -l ./{nname}", shell=True)
@@ -42,9 +30,6 @@ def perform_iwyu(fixer_path, part, filters):
     except: #this has already been tried
         return
     
-    orig_path = './' + orig
-    shutil.copy(orig_path, backup_file_path)
-
     include = [
         "include-what-you-use",
         "-Xiwyu",
@@ -78,13 +63,9 @@ def perform_iwyu(fixer_path, part, filters):
         subprocess.run(f"wc -l ./{nname} >> changes.txt", shell=True)
 
     except:
-        shutil.copy(backup_file_path, orig_path)
         subprocess.run(f"rm ./{nname}", shell=True)
-        subprocess.run(f"rm ./{backup_file_path}", shell=True)
-        subprocess.run(f"echo 'copying {backup_file_path} to {orig_path} due to bugs' >> change_bugs.txt", shell=True)
         return
 
-    return backup_file_path
 
 def build_check():
     try:
@@ -106,6 +87,7 @@ if __name__ == '__main__':
 
     parser.add_argument('commands', type=Path, help='Path to compile_commands.json')
     parser.add_argument('fixer_path', type=Path, help='Path to the fix_includes.py')
+    parser.add_argument('specific_command', help='Name of the .c file to refactor')
     parser.add_argument('filters', nargs='*', help='List of additional filters')
 
     args = parser.parse_args()
@@ -113,5 +95,6 @@ if __name__ == '__main__':
     commands = args.commands
     fixer_path = args.fixer_path
     filters = args.filters
+    specific = args.specific_command
 
-    main(commands, fixer_path, filters)
+    main(commands, fixer_path, filters, specific)
