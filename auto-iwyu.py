@@ -63,8 +63,8 @@ def perform_iwyu(fixer_path, part, filters):
 
     #two passes
 
-    os.system(' '.join(include_command))
-    os.system(' '.join(include_command))
+    subprocess.run(' '.join(include_command))
+    subprocess.run(' '.join(include_command))
 
     command[-2] = nname
     build_command = command + ['-E']
@@ -102,7 +102,8 @@ def build_check():
         exit()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="This script attempts to automatically refactor headers.")
+    parser = argparse.ArgumentParser(description='''This script attempts to automatically refactor multiple 
+                                    include lists without touching the headers themselves.''')
 
     parser.add_argument('commands', type=Path, help='Path to compile_commands.json')
     parser.add_argument('fixer_path', type=Path, help='Path to the fix_includes.py')
