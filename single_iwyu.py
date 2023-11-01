@@ -5,17 +5,20 @@ import argparse
 import sys
 from pathlib import Path
 
-def main(commands, fixer_path, filter, specific):
+def main(commands, fixer_path, filters, specific):
     dir = os.path.dirname(os.path.abspath(__file__))
-    filter.append(dir + '/filter.imp')
-    filter.append(dir + '/symbol.imp')
+    filters.append(dir + '/filter.imp')
+    filters.append(dir + '/symbol.imp')
 
     with open (commands) as file:
-        data = json.load(file)
-        for part in data:
+        for part in json.load(file):
             if specific not in part['file']: continue
             perform_iwyu(fixer_path, part, filters)
             break
+
+def linecount(filename):
+    output = subprocess.check_output(f"wc -l ./{filename}", shell=True)
+    return int(output.decode().strip().split()[0])
 
 def perform_iwyu(fixer_path, part, filters):
 
@@ -28,10 +31,9 @@ def perform_iwyu(fixer_path, part, filters):
             break
     nname = orig[:-1] + 'i'
 
-    try:
-        output = subprocess.check_output(f"wc -l ./{nname}", shell=True)
-        old_size = int(output.decode().strip().split()[0])
-    except: #this has already been tried
+    if Path(nname).exists():
+        old_size = linecount(nname)
+    else:
         print("WARNING: NO .i FILE. RUN build_intermediary.py", file=sys.stderr)
         return 1
     
@@ -53,10 +55,10 @@ def perform_iwyu(fixer_path, part, filters):
 
     #two passes
 
-    subprocess.run(' '.join(include_command))
-    subprocess.run(' '.join(include_command))
+    subprocess.run(' '.join(include_command), shell=True)
+    subprocess.run(' '.join(include_command), shell=True)
 
-    if os.path.exists(orig[:-1] + 'h'):
+    if Path(orig[:-1] + 'h').exists():
         print("WARNING: HEADER POTENTIALLY MODIFIED", file=sys.stderr)
 
     command[-2] = nname
@@ -64,42 +66,46 @@ def perform_iwyu(fixer_path, part, filters):
     subprocess.check_call(' '.join(build_command), shell=True)
 
     try:
-        output = subprocess.check_output(f"wc -l ./{nname}", shell=True)
-        new_size = int(output.decode().strip().split()[0])
-        if new_size >= old_size:
+        
+        if linecount(nname) >= old_size:
             print("WARNING: CHANGES DID NOT LEAD TO REDUCTION IN PREPROCESSING SIZE", file=sys.stderr)
             return 1
-        subprocess.run(f"wc -l ./{nname} >> changes.txt", shell=True)
 
     except:
-        subprocess.run(f"rm ./{nname}", shell=True)
-        print("WARNING: DOES NOT BUILD", file=sys.stderr)
+        if nname:
+            subprocess.run(f"rm ./{nname}", shell=True)
+            print("WARNING: DOES NOT BUILD", file=sys.stderr)
         return 1
 
     with open(orig, 'r') as file:
-        for line in file:
+        line = file.readline()
+        while line:
             if 'asm-generic' in line:
                 print(f'''WARNING: ASM-GENERIC PRESENT IN LINE: {line}
                         CONSIDER REMOVING''', file=sys.stderr)
+            line = file.readline()
                 
     if build_check(): return 1
 
     return 0
 
 
-def build_check():
+def build_check(specific):
+    result = subprocess.check_output(['nproc'])
+    num_cpus = int(result.stdout.strip())
     try:
-        subprocess.check_output("make ARCH=arm LLVM=1 -j 128 defconfig all", shell=True)
+        subprocess.check_output(f"make ARCH=arm LLVM=1 -j {num_cpus} {specific}", shell=True)
         print("arm works")
-        # subprocess.check_output("make ARCH=arm64 LLVM=1 -j 128 defconfig all", shell=True)
-        # print("arm64 works")
-        # subprocess.check_output("make ARCH=riscv LLVM=1 -j 128 defconfig all", shell=True)
-        # print("riscv works")
-        subprocess.check_output("make LLVM=1 -j 128 defconfig all", shell=True)
+        subprocess.check_output(f"make ARCH=arm64 LLVM=1 -j {num_cpus} {specific}", shell=True)
+        print("arm64 works")
+        subprocess.check_output(f"make ARCH=riscv LLVM=1 -j {num_cpus} {specific}", shell=True)
+        print("riscv works")
+        subprocess.check_output(f"make LLVM=1 -j {num_cpus} {specific}", shell=True)
         print("x86 works")
         return 0
         
     except:
+        print("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES", file=sys.stderr)
         return 1
 
 if __name__ == '__main__':
