@@ -5,7 +5,7 @@
     { symbol: ["boot_init_stack_canary", private, "<linux/stackprotector.h>", public]},
     { symbol: ["cpu_init_stack_canary", private, "<linux/stackprotector.h>", public]},
     { symbol: ["THREAD_SIZE", private, "<asm/page.h>", public]},
-    { symbol: ["DEFAULT_MAP_WINDOW", private, "<asm/page.h>", public]},, 
+    { symbol: ["DEFAULT_MAP_WINDOW", private, "<asm/page.h>", public]},
     { symbol: ["PMD_MASK", private, "<asm/page.h>", public]},
     { symbol: ["PMD_SIZE", private, "<asm/page.h>", public]},
     { symbol: ["get_order", private, "<asm/page.h>", public]},

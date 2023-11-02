@@ -1,14 +1,14 @@
 # IWYUScripts
 Miscellaneous scripts used to automated include-what-you-use on the linux kernel will be found here
 
-Run in the kernal repository
+Run in the kernel repository
 ```bash
-make LLVM=1 defconfig all compile_commands.json -j 128
+make LLVM=1 defconfig all compile_commands.json -j $(nproc)
 ```
 This should give the appropriate compile_commands.json. Use this to build the .i files for the compile commands:
 
 ```bash
-python build_intermediary.py compile_commands.json
+python build_intermediary.py compile_commands.json $(nproc)
 ```
 
 Replace with the acutual location of compile_commands.json
