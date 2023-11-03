@@ -65,7 +65,7 @@ def perform_iwyu(fixer_path, part, filters):
         subprocess.check_call(' '.join(iwyu_cmd), shell=True)
 
     except subprocess.CalledProcessError:
-        print("WARNING: IWYU FAILED TO RUN")
+        print("WARNING: IWYU FAILED TO RUN", file=sys.stderr)
         return False
 
     if outfile.with_suffix('.h').exists():
