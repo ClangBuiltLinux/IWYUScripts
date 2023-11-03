@@ -1,5 +1,6 @@
 '''Calls include-what-you-use on a kernel file'''
 import argparse
+import itertools
 import json
 import os
 from pathlib import Path
@@ -24,10 +25,12 @@ def main(commands, fixer_path, filters, specific):
 def linecount(filename):
     '''Counts the number of lines in a file'''
 
+    count = 0
     with filename.open(encoding='utf-8') as file:
-        for count, line in enumerate(file):
-            pass
-    return count + 1
+        for line in file:
+            count += 1
+
+    return count
 
 def perform_iwyu(fixer_path, part, filters):
     '''Given a path, a clang build command and filters, this function 
@@ -36,8 +39,8 @@ def perform_iwyu(fixer_path, part, filters):
     command = part['command'].split()
     os.chdir(part["directory"])
 
-    for i, statement in enumerate(command):
-        if statement == '-o' and i != len(command)-1:
+    for i, statement in enumerate(itertools.islice(command, len(command)-1)):
+        if statement == '-o':
             outfile = Path(command[i+1])
             break
     else:
