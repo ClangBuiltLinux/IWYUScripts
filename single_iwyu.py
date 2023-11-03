@@ -19,13 +19,15 @@ def main(commands, fixer_path, filters, specific):
             perform_iwyu(fixer_path, part, filters)
             break
         else:
-            print("WARNING: NO FILE WITH IDENTIFIER FOUND")
+            print("WARNING: NO FILE WITH IDENTIFIER FOUND", file=sys.stderr)
 
 def linecount(filename):
     '''Counts the number of lines in a file'''
 
-    output = subprocess.check_output(["wc",  "-l", f"{filename}"])
-    return int(output.decode().strip().split()[0])
+    with filename.open(encoding='utf-8') as file:
+        for count, line in enumerate(file):
+            pass
+    return count + 1
 
 def perform_iwyu(fixer_path, part, filters):
     '''Given a path, a clang build command and filters, this function 
@@ -35,9 +37,11 @@ def perform_iwyu(fixer_path, part, filters):
     os.chdir(part["directory"])
 
     for i, statement in enumerate(command):
-        if statement == '-o':
+        if statement == '-o' and i != len(command)-1:
             outfile = Path(command[i+1])
             break
+    else:
+        print("WARNING: NO .o FILE FOUND IN COMMAND", file=sys.stderr)
     preprocess_file = outfile.with_suffix('.i')
 
     if not preprocess_file.exists():
@@ -91,18 +95,18 @@ def perform_iwyu(fixer_path, part, filters):
                 print(f'''WARNING: ASM-GENERIC PRESENT IN LINE: {line}
                         CONSIDER REMOVING''', file=sys.stderr)
 
-    if build_check():
+    if build_check(outfile):
         return False
 
     return True
 
 
-def build_check():
+def build_check(out):
     '''Checks if the linux kernel builds properly'''
 
     num_cpus = len(os.sched_getaffinity(0))
     try:
-        data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", "all"]
+        data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", out]
         subprocess.check_output(data)
         print("arm works")
         data[1] = "ARCH=arm64"
