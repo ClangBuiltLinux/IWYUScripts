@@ -1,7 +1,8 @@
 import json
 import subprocess
 import os
-import sys
+import argparse
+from pathlib import Path
 import shutil
 
 def main(commands, fixer_path, filter):
@@ -62,8 +63,8 @@ def perform_iwyu(fixer_path, part, filters):
 
     #two passes
 
-    os.system(' '.join(include_command))
-    os.system(' '.join(include_command))
+    subprocess.run(' '.join(include_command))
+    subprocess.run(' '.join(include_command))
 
     command[-2] = nname
     build_command = command + ['-E']
@@ -101,7 +102,17 @@ def build_check():
         exit()
 
 if __name__ == '__main__':
-    commands = sys.argv[1]
-    fixer_path = sys.argv[2]
-    filters = sys.argv[3:]
+    parser = argparse.ArgumentParser(description='''This script attempts to automatically refactor multiple 
+                                    include lists without touching the headers themselves.''')
+
+    parser.add_argument('commands', type=Path, help='Path to compile_commands.json')
+    parser.add_argument('fixer_path', type=Path, help='Path to the fix_includes.py')
+    parser.add_argument('filters', nargs='*', help='List of additional filters')
+
+    args = parser.parse_args()
+
+    commands = args.commands
+    fixer_path = args.fixer_path
+    filters = args.filters
+
     main(commands, fixer_path, filters)
