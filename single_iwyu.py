@@ -6,11 +6,12 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from typing import List
 
 def warn(msg: str) -> None:
     print(f"\n\033[01;33mWARNING: {msg}\033[0m", flush=True, file=sys.stderr)
 
-def main(commands, fixer_path, filters, specific):
+def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
     '''Chooses a specific file to call perform_iwyu on'''
 
     current_dir = Path(__file__).resolve().parent
@@ -27,7 +28,7 @@ def linecount(file_path: Path) -> int:
     '''Returns the number of lines in a file'''
     return len(file_path.open().readlines())
 
-def perform_iwyu(fixer_path, part, filters):
+def perform_iwyu(fixer_path: Path, part: json, filters: List[Path]) -> bool:
     '''Given a path, a clang build command and filters, this function 
     calls include-what-you-use and validates the efficacy of the changes'''
 
@@ -99,7 +100,7 @@ def perform_iwyu(fixer_path, part, filters):
     return True
 
 
-def build_check(out):
+def build_check(out: Path) -> bool:
     '''Checks if the linux kernel builds properly'''
 
     num_cpus = len(os.sched_getaffinity(0))
@@ -133,7 +134,8 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--specific_command', required=True,
                         help='Name of the .c file to refactor')
     parser.add_argument('-fi', '--filters', nargs='*',
-                        help='List of additional filters')
+                        help='List of additional filters',
+                        default=list())
 
     args = parser.parse_args()
     main(args.commands, args.fixer_path, args.filters, args.specific_command)
