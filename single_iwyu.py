@@ -7,30 +7,25 @@ from pathlib import Path
 import subprocess
 import sys
 
+def warn(msg: str) -> None:
+    print(f"\n\033[01;33mWARNING: {msg}\033[0m", flush=True, file=sys.stderr)
+
 def main(commands, fixer_path, filters, specific):
     '''Chooses a specific file to call perform_iwyu on'''
 
     current_dir = Path(__file__).resolve().parent
     filters += [Path(current_dir, 'filter.imp'), Path(current_dir, 'symbol.imp')]
 
-    with open (commands, encoding='utf-8') as file:
-        for part in json.load(file):
-            if specific not in part['file']:
-                continue
+    with open(commands, encoding='utf-8') as file:       
+        eligible = [x for x in json.load(file) if specific in x['file']]
+        if not len(eligible):
+            warn("NO FILE WITH IDENTIFIER FOUND")
+        for part in eligible:
             perform_iwyu(fixer_path, part, filters)
-            break
-        else:
-            print("WARNING: NO FILE WITH IDENTIFIER FOUND", file=sys.stderr)
 
-def linecount(filename):
-    '''Counts the number of lines in a file'''
-
-    count = 0
-    with filename.open(encoding='utf-8') as file:
-        for line in file:
-            count += 1
-
-    return count
+def linecount(file_path: Path) -> int:
+    '''Returns the number of lines in a file'''
+    return len(file_path.open().readlines())
 
 def perform_iwyu(fixer_path, part, filters):
     '''Given a path, a clang build command and filters, this function 
@@ -98,7 +93,7 @@ def perform_iwyu(fixer_path, part, filters):
                 print(f'''WARNING: ASM-GENERIC PRESENT IN LINE: {line}
                         CONSIDER REMOVING''', file=sys.stderr)
 
-    if build_check(outfile):
+    if not build_check(outfile):
         return False
 
     return True
@@ -141,5 +136,4 @@ if __name__ == '__main__':
                         help='List of additional filters')
 
     args = parser.parse_args()
-    args.filters = [] if not args.filters else args.filters
     main(args.commands, args.fixer_path, args.filters, args.specific_command)
