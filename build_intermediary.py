@@ -1,20 +1,12 @@
 import json
-import subprocess
-import os
 import sys
 import threading
 
+from lib.utils import build
+
 def execute_command(command, directory, semaphore):
     with semaphore:
-        try:
-            os.chdir(directory)
-            subprocess.check_call(' '.join(command), shell=True)
-        except KeyboardInterrupt:
-            print("Keyboard Interrupt occurred.")
-            exit()
-        except Exception as e:
-            print("Unknown Error:", e)
-            exit()
+        build(command, directory)
 
 def main(commands, threads):
     with open(commands) as file:
