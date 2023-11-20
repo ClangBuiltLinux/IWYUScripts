@@ -33,10 +33,10 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path]) -> bool:
     command = part['command'].split()
     os.chdir(part["directory"])
 
-    for i, statement in enumerate(itertools.islice(command, len(command)-1)):
+    for i, statement in enumerate(itertools.islice(command, len(command) - 1)):
         if statement == '-o':
-            outfile = Path(command[i+1])
-            found_index = i+1
+            outfile = Path(command[i + 1])
+            found_index = i + 1
             break
     else:
         warn("WARNING: NO .o FILE FOUND IN COMMAND")
@@ -45,9 +45,11 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path]) -> bool:
     preprocess_file = outfile.with_suffix('.i')
 
     if not preprocess_file.exists():
-        new_commands = list(command) + ['-E']
+        new_commands = command + ['-E']
         new_commands[found_index] = str(preprocess_file)
-        build(new_commands, part["directory"])
+        if not build(new_commands, part["directory"]):
+            warn("Build Failure")
+            return False
 
     old_size = linecount(preprocess_file)
 

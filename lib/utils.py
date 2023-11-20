@@ -1,3 +1,4 @@
+'''Utility functions used in other IWYU Scripts'''
 import os
 from pathlib import Path
 import subprocess
@@ -9,10 +10,11 @@ def warn(msg: str) -> None:
     print(f"\n\033[01;33mWARNING: {msg}\033[0m", flush=True, file=sys.stderr)
 
 def build(command: List[str], directory: str):
-    '''Builds .i file'''
+    '''Runs a command as a subprocess to build a .i file in the target directory'''
     try:
         os.chdir(directory)
         subprocess.check_call(' '.join(command), shell=True)
+        return True
     except KeyboardInterrupt:
         warn("Keyboard Interrupt occurred.")
         return False
@@ -20,12 +22,12 @@ def build(command: List[str], directory: str):
         warn(f"Unknown Error: {e}")
         return False
 
-def build_check(out: Path) -> bool:
+def build_check(target: Path) -> bool:
     '''Checks if the linux kernel builds properly'''
 
     num_cpus = len(os.sched_getaffinity(0))
     try:
-        data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", out]
+        data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
         subprocess.check_output(data)
         print("arm works")
         data[1] = "ARCH=arm64"
