@@ -11,16 +11,16 @@ def warn(msg: str) -> None:
 
 def build(command: List[str], directory: str):
     '''Runs a command as a subprocess to build a .i file in the target directory'''
+    os.chdir(directory)
     try:
-        os.chdir(directory)
         subprocess.check_call(' '.join(command), shell=True)
-        return True
     except KeyboardInterrupt:
         warn("Keyboard Interrupt occurred.")
         return False
     except Exception as e:
         warn(f"Unknown Error: {e}")
         return False
+    return True
 
 def build_check(target: Path) -> bool:
     '''Checks if the linux kernel builds properly'''
