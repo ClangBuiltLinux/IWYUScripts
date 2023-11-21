@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 '''Calls include-what-you-use on a kernel file'''
+
 import argparse
 import itertools
 import json
