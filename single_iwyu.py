@@ -65,7 +65,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path]) -> bool:
 
     iwyu_cmd = ['include-what-you-use'] + command[1:]
     iwyu_cmd += [flag for opt in iwyu_opts for flag in ('-Xiwyu', opt)]
-    iwyu_cmd += [f'2>&1 | {fixer_path} --noreorder']
+    iwyu_cmd += [f'2>&1 | python {Path(__file__).resolve().parent}/lib/remove_quotes.py | {fixer_path} --noreorder']
 
     try:
         subprocess.check_call(' '.join(iwyu_cmd), shell=True)
