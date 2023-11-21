@@ -20,13 +20,13 @@ def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
         if len(eligible) == 0:
             warn("NO FILE WITH IDENTIFIER FOUND")
         for part in eligible:
-            perform_iwyu(fixer_path, part, filters)
+            perform_iwyu(fixer_path, part, filters, current_dir)
 
 def linecount(file_path: Path) -> int:
     '''Returns the number of lines in a file'''
     return len(file_path.open().readlines())
 
-def perform_iwyu(fixer_path: Path, part: json, filters: List[Path]) -> bool:
+def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path: Path) -> bool:
     '''Given a path, a clang build command and filters, this function 
     calls include-what-you-use and validates the efficacy of the changes'''
 
@@ -65,7 +65,13 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path]) -> bool:
 
     iwyu_cmd = ['include-what-you-use'] + command[1:]
     iwyu_cmd += [flag for opt in iwyu_opts for flag in ('-Xiwyu', opt)]
-    iwyu_cmd += [f'2>&1 | {fixer_path}']
+    iwyu_cmd += ['2>&1']
+    iwyu_cmd += ['|']
+    iwyu_cmd += ['python']
+    iwyu_cmd += [f'{current_path}/lib/remove_quotes.py']
+    iwyu_cmd += ['|']
+    iwyu_cmd += [f'{fixer_path}']
+    iwyu_cmd += ['--noreorder']
 
     try:
         subprocess.check_call(' '.join(iwyu_cmd), shell=True)
