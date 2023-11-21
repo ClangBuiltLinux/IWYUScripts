@@ -28,6 +28,19 @@ def linecount(file_path: Path) -> int:
     '''Returns the number of lines in a file'''
     return len(file_path.open().readlines())
 
+def run_cleaned_iwyu (iwyu: List[str], cleaner: List[str], fix_includes: List[str]) -> bool:
+    '''Spawns subprocesses to run the IWYU command,
+    remove the quotes, and transform the original file'''
+    try:
+        _, err = subprocess.Popen(iwyu, stderr=subprocess.PIPE, text=True).communicate()
+        out, _ = subprocess.Popen(cleaner, stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE, text=True).communicate(input=err)
+        subprocess.Popen(fix_includes, stdin=subprocess.PIPE, text=True).communicate(out)
+    except subprocess.CalledProcessError:
+        warn("IWYU FAILED TO RUN")
+        return False
+    return True
+
 def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path: Path) -> bool:
     '''Given a path, a clang build command and filters, this function 
     calls include-what-you-use and validates the efficacy of the changes'''
@@ -41,7 +54,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
             found_index = i + 1
             break
     else:
-        warn("WARNING: NO .o FILE FOUND IN COMMAND")
+        warn("NO .o FILE FOUND IN COMMAND")
         return False
 
     preprocess_file = outfile.with_suffix('.i')
@@ -67,43 +80,34 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
 
     iwyu_cmd = ['include-what-you-use'] + command[1:]
     iwyu_cmd += [flag for opt in iwyu_opts for flag in ('-Xiwyu', opt)]
-    iwyu_cmd += ['2>&1']
-    iwyu_cmd += ['|']
-    iwyu_cmd += ['python']
-    iwyu_cmd += [f'{current_path}/lib/remove_quotes.py']
-    iwyu_cmd += ['|']
-    iwyu_cmd += [f'{fixer_path}']
-    iwyu_cmd += ['--noreorder']
+    quote_cleaner = ['python', f'{current_path}/lib/remove_quotes.py']
+    fix_includes = [f'{fixer_path}', '--noreorder']
 
-    try:
-        subprocess.check_call(' '.join(iwyu_cmd), shell=True)
-        subprocess.check_call(' '.join(iwyu_cmd), shell=True)
-
-    except subprocess.CalledProcessError:
-        warn("WARNING: IWYU FAILED TO RUN")
+    #Runs twice to fix include list once and a second time to catch bad includes
+    if not all(run_cleaned_iwyu(iwyu_cmd, quote_cleaner, fix_includes) for _ in range(2)):
         return False
 
     if outfile.with_suffix('.h').exists():
-        warn("WARNING: HEADER POTENTIALLY MODIFIED")
+        warn("HEADER POTENTIALLY MODIFIED")
 
     command[-2] = str(preprocess_file)
     subprocess.check_call(command + ['-E'])
 
     try:
         if linecount(preprocess_file) >= old_size:
-            warn("WARNING: CHANGES LEAD TO NO REDUCTION IN PREPROCESSING SIZE")
+            warn("CHANGES LEAD TO NO REDUCTION IN PREPROCESSING SIZE")
             return False
 
     except subprocess.CalledProcessError:
         if preprocess_file:
-            warn("WARNING: DOES NOT BUILD")
+            warn("DOES NOT BUILD")
         return False
 
     with open(outfile.with_suffix('.c'), encoding='utf-8') as file:
         lines = file.readlines()
         for line in lines:
             if 'asm-generic' in line:
-                warn(f'''WARNING: ASM-GENERIC PRESENT IN LINE: {line}
+                warn(f'''ASM-GENERIC PRESENT IN LINE: {line}
                         CONSIDER REMOVING''')
 
     if not build_check(outfile):
