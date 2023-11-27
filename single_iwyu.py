@@ -11,7 +11,7 @@ from typing import List
 
 from lib.utils import build, build_check, warn
 
-def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
+def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str, debug: bool):
     '''Chooses a specific file to call perform_iwyu on'''
 
     current_dir = Path(__file__).resolve().parent
@@ -22,26 +22,29 @@ def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
         if len(eligible) == 0:
             warn("NO FILE WITH IDENTIFIER FOUND")
         for part in eligible:
-            perform_iwyu(fixer_path, part, filters, current_dir)
+            perform_iwyu(fixer_path, part, filters, current_dir, debug)
 
 def linecount(file_path: Path) -> int:
     '''Returns the number of lines in a file'''
     return len(file_path.open().readlines())
 
-def run_cleaned_iwyu (iwyu: List[str], cleaner: List[str], fix_includes: List[str]) -> bool:
+def run_cleaned_iwyu (iwyu: List[str], cleaner: List[str], fix_includes: List[str], debug: bool) -> bool:
     '''Spawns subprocesses to run the IWYU command,
     remove the quotes, and transform the original file'''
     try:
         _, err = subprocess.Popen(iwyu, stderr=subprocess.PIPE, text=True).communicate()
         out, _ = subprocess.Popen(cleaner, stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, text=True).communicate(input=err)
+        if debug:
+            print("DEBUG")
+            print(out)
         subprocess.Popen(fix_includes, stdin=subprocess.PIPE, text=True).communicate(out)
     except subprocess.CalledProcessError:
         warn("IWYU FAILED TO RUN")
         return False
     return True
 
-def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path: Path) -> bool:
+def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path: Path, debug: bool) -> bool:
     '''Given a path, a clang build command and filters, this function 
     calls include-what-you-use and validates the efficacy of the changes'''
 
@@ -128,6 +131,8 @@ if __name__ == '__main__':
     parser.add_argument('-fi', '--filters', nargs='*',
                         help='List of additional filters',
                         default=[])
+    parser.add_argument('-d', action='store_true',
+                        help='Debug mode on. Prints IWYU output.')
 
     args = parser.parse_args()
-    main(args.commands, args.fixer_path, args.filters, args.specific_command)
+    main(args.commands, args.fixer_path, args.filters, args.specific_command, args.d)
