@@ -87,7 +87,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     fix_includes = [f'{fixer_path}', '--noreorder']
 
     #Runs twice to fix include list once and a second time to catch bad includes
-    if not all(run_cleaned_iwyu(iwyu_cmd, quote_cleaner, fix_includes, debug) for _ in range(2)):
+    if not run_cleaned_iwyu(iwyu_cmd, quote_cleaner, fix_includes, debug):
         return False
 
     if outfile.with_suffix('.h').exists():
