@@ -121,8 +121,10 @@ if __name__ == '__main__':
 
     parser.add_argument('-c', '--commands', type=Path, required=True,
                         help='Path to compile_commands.json')
-    parser.add_argument('-f', '--fixer_path', type=Path, required=True,
-                        help='Path to the fix_includes.py')
+    parser.add_argument('-f', '--fixer_path', type=Path,
+                        help='Path to the fix_includes.py',
+                        default=Path(Path(__file__).resolve().parent,
+                                    'include-what-you-use/fix_includes.py'))
     parser.add_argument('-s', '--specific_command', required=True,
                         help='Name of the .c file to refactor')
     parser.add_argument('-fi', '--filters', nargs='*',
