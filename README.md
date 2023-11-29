@@ -25,5 +25,5 @@ There are many reasons that single_iwyu may not work. These are:
 After Diagnosing there are a few possible solutions:
 * Include the header with the macro that was needed. In the symbol.imp file add symbols that were called in conjunction with the macro or inside the macro to correctly inject the header witht the macro in the future.
 * Add the duplicate header that was removed back into the code.
-* Change asm-generic to asm or linux. The easiest way to know how to do this is to see what includes the asm-generic. Upon making this change you should map the asm-generic header to the new header in the filter.imp file. 
-* Headers often need to be detangled. This means that structs may need to be moved around, new headers may need to be created etc. This must be done by hand but error messages indicate what is causing the problem.
+* Change asm-generic to asm or linux. The easiest way to know how to do this is to see what includes the asm-generic. Upon making this change you should map the asm-generic header to the new header in the filter.imp file.
+* Headers often need to be detangled. This means that structs may need to be moved around, and new headers may need to be created, etc. This must be done by hand, but error messages indicate what is causing the problem.
