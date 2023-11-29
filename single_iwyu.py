@@ -115,7 +115,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     if not build_check(outfile):
         return False
 
-    print(f"Code Shrank from: {old_size} lines to {new_size} lines")
+    print(f"Preprocessed Size shrank from: {old_size} lines to {new_size} lines")
     return True
 
 if __name__ == '__main__':
