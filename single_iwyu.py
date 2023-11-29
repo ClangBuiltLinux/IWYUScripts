@@ -38,9 +38,12 @@ def run_cleaned_iwyu (iwyu: List[str], cleaner: List[str], fix_includes: List[st
         if debug:
             print("DEBUG")
             print(out)
-        subprocess.Popen(fix_includes, stdin=subprocess.PIPE, text=True).communicate(out)
+        change, _ = subprocess.Popen(fix_includes, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True).communicate(out)
     except subprocess.CalledProcessError:
         warn("IWYU FAILED TO RUN")
+        return False
+    print(change)
+    if "IWYU edited 0 files on your behalf." in change:
         return False
     return True
 
@@ -86,9 +89,12 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     quote_cleaner = ['python', f'{current_path}/lib/remove_quotes.py']
     fix_includes = [f'{fixer_path}', '--noreorder']
 
-    #Runs twice to fix include list once and a second time to catch bad includes
     if not run_cleaned_iwyu(iwyu_cmd, quote_cleaner, fix_includes, debug):
+        warn("NO Changes")
         return False
+    
+    if run_cleaned_iwyu(iwyu_cmd, quote_cleaner, fix_includes, debug):
+        warn("X-MACRO OR HEADER MODIFICATION MAY BE PRESENT")
 
     if outfile.with_suffix('.h').exists():
         warn("HEADER POTENTIALLY MODIFIED")
