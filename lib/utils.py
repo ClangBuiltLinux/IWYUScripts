@@ -1,6 +1,7 @@
 '''Utility functions used in other IWYU Scripts'''
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 from typing import List
@@ -26,6 +27,7 @@ def build_check(target: Path) -> bool:
     '''Checks if the linux kernel builds properly'''
 
     num_cpus = len(os.sched_getaffinity(0))
+    shutil.copy('.config', '.tmp.config')
     try:
         print("Building arm")
         data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
@@ -46,8 +48,13 @@ def build_check(target: Path) -> bool:
         data[1] = "ARCH=x86"
         subprocess.check_output(data)
         print("x86 works")
-        return True
 
     except subprocess.CalledProcessError:
         warn("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES")
         return False
+
+    finally:
+        shutil.copy('.tmp.config', '.config')
+        Path.unlink('.tmp.config')
+
+    return True
