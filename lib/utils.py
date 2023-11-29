@@ -44,10 +44,10 @@ def build_check(target: Path) -> bool:
 
     except subprocess.CalledProcessError:
         warn("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES")
-        shutil.copy('.tmp.config', '.config')
-        Path.unlink('.tmp.config')
         return False
 
-    shutil.copy('.tmp.config', '.config')
-    Path.unlink('.tmp.config')
+    finally:
+        shutil.copy('.tmp.config', '.config')
+        Path.unlink('.tmp.config')
+
     return True
