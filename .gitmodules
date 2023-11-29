@@ -1,0 +1,3 @@
+[submodule "include-what-you-use"]
+	path = include-what-you-use
+	url = https://github.com/include-what-you-use/include-what-you-use.git
