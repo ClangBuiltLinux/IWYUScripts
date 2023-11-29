@@ -27,15 +27,22 @@ def build_check(target: Path) -> bool:
 
     num_cpus = len(os.sched_getaffinity(0))
     try:
+        print("Building arm")
         data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
         subprocess.check_output(data)
         print("arm works")
+
+        print("Building arm64")
         data[1] = "ARCH=arm64"
         subprocess.check_output(data)
         print("arm64 works")
+
+        print("Building riscv")
         data[1] = "ARCH=riscv"
         subprocess.check_output(data)
         print("riscv works")
+
+        print("Building x86")
         data[1] = "ARCH=x86"
         subprocess.check_output(data)
         print("x86 works")
