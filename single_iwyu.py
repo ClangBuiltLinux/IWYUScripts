@@ -94,8 +94,10 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     subprocess.check_call(command + ['-E'])
 
     try:
-        if linecount(preprocess_file) >= old_size:
+        new_size = linecount(preprocess_file)
+        if new_size >= old_size:
             warn("CHANGES LEAD TO NO REDUCTION IN PREPROCESSING SIZE")
+            warn(f"OLD SIZE: {old_size} vs NEW SIZE: {new_size}")
             return False
 
     except subprocess.CalledProcessError:
@@ -113,6 +115,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     if not build_check(outfile):
         return False
 
+    print(f"Preprocessed size shrank from: {old_size} lines to {new_size} lines")
     return True
 
 if __name__ == '__main__':
