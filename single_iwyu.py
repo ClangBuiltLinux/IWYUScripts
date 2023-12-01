@@ -59,14 +59,14 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
 
     preprocess_file = outfile.with_suffix('.i')
 
-    if not preprocess_file.exists():
-        new_commands = command + ['-E']
-        new_commands[found_index] = str(preprocess_file)
-        if not build(new_commands, part["directory"]):
-            warn("Build Failure")
-            return False
+    new_commands = command + ['-E']
+    new_commands[found_index] = str(preprocess_file)
+    if not build(new_commands, part["directory"]):
+        warn("Build Failure")
+        return False
 
     old_size = linecount(preprocess_file)
+    preprocess_file.unlink()
 
     iwyu_opts = [
     '--no_default_mappings',
@@ -92,7 +92,6 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
 
     command[-2] = str(preprocess_file)
     subprocess.check_call(command + ['-E'])
-
     try:
         new_size = linecount(preprocess_file)
         if new_size >= old_size:
@@ -104,6 +103,9 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         if preprocess_file:
             warn("DOES NOT BUILD")
         return False
+    
+    finally:
+        preprocess_file.unlink(missing_ok=True)
 
     with open(outfile.with_suffix('.c'), encoding='utf-8') as file:
         lines = file.readlines()
