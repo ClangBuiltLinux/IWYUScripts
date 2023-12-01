@@ -105,7 +105,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         return False
     
     finally:
-        preprocess_file.unlink()
+        preprocess_file.unlink(missing_ok=True)
 
     with open(outfile.with_suffix('.c'), encoding='utf-8') as file:
         lines = file.readlines()
