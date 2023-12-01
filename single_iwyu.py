@@ -66,7 +66,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         return False
 
     old_size = linecount(preprocess_file)
-    Path.unlink(preprocess_file)
+    preprocess_file.unlink()
 
     iwyu_opts = [
     '--no_default_mappings',
@@ -105,7 +105,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         return False
     
     finally:
-        Path.unlink(preprocess_file)
+        preprocess_file.unlink()
 
     with open(outfile.with_suffix('.c'), encoding='utf-8') as file:
         lines = file.readlines()
