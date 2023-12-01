@@ -59,12 +59,11 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
 
     preprocess_file = outfile.with_suffix('.i')
 
-    if not preprocess_file.exists():
-        new_commands = command + ['-E']
-        new_commands[found_index] = str(preprocess_file)
-        if not build(new_commands, part["directory"]):
-            warn("Build Failure")
-            return False
+    new_commands = command + ['-E']
+    new_commands[found_index] = str(preprocess_file)
+    if not build(new_commands, part["directory"]):
+        warn("Build Failure")
+        return False
 
     old_size = linecount(preprocess_file)
 
