@@ -66,6 +66,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         return False
 
     old_size = linecount(preprocess_file)
+    Path.unlink(preprocess_file)
 
     iwyu_opts = [
     '--no_default_mappings',
@@ -91,7 +92,6 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
 
     command[-2] = str(preprocess_file)
     subprocess.check_call(command + ['-E'])
-
     try:
         new_size = linecount(preprocess_file)
         if new_size >= old_size:
@@ -103,6 +103,9 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         if preprocess_file:
             warn("DOES NOT BUILD")
         return False
+    
+    finally:
+        Path.unlink(preprocess_file)
 
     with open(outfile.with_suffix('.c'), encoding='utf-8') as file:
         lines = file.readlines()
