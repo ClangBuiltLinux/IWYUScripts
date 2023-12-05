@@ -47,6 +47,8 @@ def run_cleaned_iwyu (iwyu: List[str], cleaner: List[str], fix_includes: List[st
 
     print(change)
 
+    if "IWYU edited 0 files on your behalf." in change:
+        return False
     return True
 
 def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path: Path) -> bool:
