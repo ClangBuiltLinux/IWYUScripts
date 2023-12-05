@@ -27,3 +27,14 @@ After Diagnosing there are a few possible solutions:
 * Add the duplicate header that was removed back into the code.
 * Change asm-generic to asm or linux. The easiest way to know how to do this is to see what includes the asm-generic. Upon making this change you should map the asm-generic header to the new header in the filter.imp file.
 * Headers often need to be detangled. This means that structs may need to be moved around, and new headers may need to be created, etc. This must be done by hand, but error messages indicate what is causing the problem.
+
+When to Modify Tables:
+1. Use the -d flag for debug mode. 
+2. Examine the source of the issue. If it is an asm file that's not present in multiple architectures being included or an asm-generic file find that file and check who includes it.
+3. Try setting the problematic file as private in filter.imp. This is done by adding the line:
+   ```{ include: ["@[\"<]asm-generic/PROBLEM-FILE.h[\">]", private, "<asm/SOLUTION-FILE.h>", "public"] },```
+   replace asm-generic/PROBLEM-FILE.h and asm/SOLUTION-FILE.h accordingly. Examples are found in filter.imp.
+4. Try rerunning single-iwyu.py after reverting the previously made changes.
+5. If there are still problems. Find the source of the problematic file and replace all tokens that IWYU associates with that file with a better file. An example of this is asm-generic/percpu.h. It has many tokens that need to be manually associated with linux/percpu.h. Add the following line to symbol.imp force an association between a token and a header:
+   ```{ symbol: ["TOKEN", private, "asm/SOLUTION-FILE", public]},```
+   Examples are found in symbol.imp
