@@ -91,6 +91,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     quote_cleaner = ['python', f'{current_path}/lib/remove_quotes.py']
     fix_includes = [f'{fixer_path}', '--noreorder']
 
+    #Runs twice to fix include list once and a second time to catch bad includes
     if not run_cleaned_iwyu(iwyu_cmd, quote_cleaner, fix_includes):
         warn("NO CHANGES")
         return False
