@@ -99,8 +99,8 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         warn("HEADER POTENTIALLY MODIFIED")
 
     command[-2] = str(preprocess_file)
-    subprocess.check_call(command + ['-E'])
     try:
+        subprocess.check_call(command + ['-E'])
         new_size = linecount(preprocess_file)
         if new_size >= old_size:
             warn("CHANGES LEAD TO NO REDUCTION IN PREPROCESSING SIZE")
