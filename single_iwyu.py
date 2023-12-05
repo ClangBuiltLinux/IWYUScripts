@@ -11,6 +11,8 @@ from typing import List
 
 from lib.utils import build, build_check, warn
 
+DEBUG = False
+
 def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
     '''Chooses a specific file to call perform_iwyu on'''
 
@@ -35,10 +37,16 @@ def run_cleaned_iwyu (iwyu: List[str], cleaner: List[str], fix_includes: List[st
         _, err = subprocess.Popen(iwyu, stderr=subprocess.PIPE, text=True).communicate()
         out, _ = subprocess.Popen(cleaner, stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE, text=True).communicate(input=err)
-        subprocess.Popen(fix_includes, stdin=subprocess.PIPE, text=True).communicate(out)
+        if DEBUG:
+            print("DEBUG")
+            print(out)
+        change, _ = subprocess.Popen(fix_includes, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True).communicate(out)
     except subprocess.CalledProcessError:
         warn("IWYU FAILED TO RUN")
         return False
+
+    print(change)
+
     return True
 
 def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path: Path) -> bool:
@@ -70,7 +78,7 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
 
     iwyu_opts = [
     '--no_default_mappings',
-    '--max_line_length=30',
+    f'--max_line_length={3000 if DEBUG else 30}',
     '--no_fwd_decls',
     '--prefix_header_includes=keep',
     ]
@@ -135,6 +143,11 @@ if __name__ == '__main__':
     parser.add_argument('-fi', '--filters', nargs='*',
                         help='List of additional filters',
                         default=[])
+    parser.add_argument('-d', action='store_true',
+                        help='Debug mode on. Prints IWYU output.')
 
     args = parser.parse_args()
+
+    DEBUG = args.d
+
     main(args.commands, args.fixer_path, args.filters, args.specific_command)
