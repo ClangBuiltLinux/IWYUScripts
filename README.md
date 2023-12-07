@@ -32,7 +32,7 @@ When to Modify Tables:
 1. Use the -d flag for debug mode. 
 2. Examine the source of the issue. If it is an asm file that's not present in multiple architectures being included or an asm-generic file find that file and check who includes it.
 3. Try setting the problematic file as private in filter.imp. This is done by adding the line:
-   ```{ include: ["@[\"<]asm-generic/PROBLEM-FILE.h[\">]", private, "<asm/SOLUTION-FILE.h>", "public"] },```
+   ```{ include: ["@.asm-generic/PROBLEM-FILE.h.", private, "<asm/SOLUTION-FILE.h>", "public"] },```
    replace asm-generic/PROBLEM-FILE.h and asm/SOLUTION-FILE.h accordingly. Examples are found in filter.imp.
 4. Try rerunning single-iwyu.py after reverting the previously made changes.
 5. If there are still problems. Find the source of the problematic file and replace all tokens that IWYU associates with that file with a better file. An example of this is asm-generic/percpu.h. It has many tokens that need to be manually associated with linux/percpu.h. Add the following line to symbol.imp force an association between a token and a header:
