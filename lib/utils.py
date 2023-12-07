@@ -31,25 +31,25 @@ def build_check(target: Path) -> bool:
     num_cpus = len(os.sched_getaffinity(0))
     shutil.copy('.config', '.tmp.config')
     try:
-        print("Building arm")
-        data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
-        subprocess.check_output(data)
-        print("arm works")
+        clang_archs = ["arm", "arm64", "riscv", "powerpc", "x86"]
+        for arch in clang_archs:
+            print(f"Building {arch}")
+            data = ["make", f"ARCH={arch}", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
+            subprocess.check_output(data)
+            print(f"{arch} works")
 
-        print("Building arm64")
-        data[1] = "ARCH=arm64"
-        subprocess.check_output(data)
-        print("arm64 works")
+        architectures = ['alpha', 'arc', 'csky', 'hppa', 'hppa64', 'ia64', 'i386', 'loongarch64', 'm68k', 'microblaze', 'mips',
+                         'mips64', 'nios2', 'or1k', 'powerpc', 's390', 'sh2', 'sh4', 'sparc', 'sparc64', 'xtensa']
 
-        print("Building riscv")
-        data[1] = "ARCH=riscv"
-        subprocess.check_output(data)
-        print("riscv works")
+        for arch in architectures:
+            compiler_name = f'{arch}-linux-gcc'
 
-        print("Building x86")
-        data[1] = "ARCH=x86"
-        subprocess.check_output(data)
-        print("x86 works")
+            if shutil.which(compiler_name) is not None:
+                print(f"Building {arch}")
+                data = ["make", f"ARCH={arch}", f"CROSS_COMPILE={arch}-linux-", "-j", str(num_cpus), "defconfig", target]
+                subprocess.check_output(data)
+                print(f"{arch} works")
+                
 
     except subprocess.CalledProcessError:
         warn("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES")
