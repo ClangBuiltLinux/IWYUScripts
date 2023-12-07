@@ -105,13 +105,8 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
         warn("HEADER POTENTIALLY MODIFIED")
 
     command[-2] = str(preprocess_file)
-    subprocess.check_call(command + ['-E'])
     try:
-        new_size = linecount(preprocess_file)
-        if new_size >= old_size:
-            warn("CHANGES LEAD TO NO REDUCTION IN PREPROCESSING SIZE")
-            warn(f"OLD SIZE: {old_size} vs NEW SIZE: {new_size}")
-            return False
+        subprocess.check_call(command + ['-E'])
 
     except subprocess.CalledProcessError:
         if preprocess_file:
@@ -120,6 +115,12 @@ def perform_iwyu(fixer_path: Path, part: json, filters: List[Path], current_path
     
     finally:
         preprocess_file.unlink(missing_ok=True)
+
+    new_size = linecount(preprocess_file)
+    if new_size >= old_size:
+        warn("CHANGES LEAD TO NO REDUCTION IN PREPROCESSING SIZE")
+        warn(f"OLD SIZE: {old_size} vs NEW SIZE: {new_size}")
+        return False
 
     with open(outfile.with_suffix('.c'), encoding='utf-8') as file:
         lines = file.readlines()
