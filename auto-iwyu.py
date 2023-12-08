@@ -8,16 +8,12 @@ def main(commands, fixer_path, filters):
     current_dir = Path(__file__).resolve().parent
     filters += [Path(current_dir, 'filter.imp'), Path(current_dir, 'symbol.imp')]
 
-    broken = {}
-
     with open (commands, encoding='utf-8') as file:
         data = json.load(file)
         count = 0
         for part in data:
             count += 1
             print(count)
-            if any(badfile in part["file"] for badfile in broken):
-                continue
             if not perform_iwyu(fixer_path, part, filters, current_dir):
                 return
 
