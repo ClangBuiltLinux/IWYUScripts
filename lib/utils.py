@@ -25,31 +25,29 @@ def build(command: List[str], directory: str):
         return False
     return True
 
+def build_architecture(arch, cross, num_cpus, target):
+    print(f"Building {arch}")
+    data = ["make", f"ARCH={arch}", cross, "-j", str(num_cpus), "defconfig", target]
+    subprocess.check_output(data)
+    print(f"{arch} works")
+
 def build_check(target: Path) -> bool:
     '''Checks if the linux kernel builds properly'''
 
     num_cpus = len(os.sched_getaffinity(0))
     shutil.copy('.config', '.tmp.config')
     try:
-        clang_archs = ["arm", "arm64", "riscv", "powerpc", "x86"]
+        clang_archs = ["arm", "arm64", "mips", "riscv", "powerpc", "x86", "um"]
         for arch in clang_archs:
-            print(f"Building {arch}")
-            data = ["make", f"ARCH={arch}", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
-            subprocess.check_output(data)
-            print(f"{arch} works")
+            build_architecture(arch, 'LLVM=1', num_cpus, target)
 
-        architectures = ['alpha', 'arc', 'csky', 'hppa', 'hppa64', 'ia64', 'i386', 'loongarch64', 'm68k', 'microblaze', 'mips',
-                         'mips64', 'nios2', 'or1k', 'powerpc', 's390', 'sh2', 'sh4', 'sparc', 'sparc64', 'xtensa']
+        architectures = ['alpha', 'arc', 'csky', 'hppa', 'hppa64', 'i386', 'loongarch64', 'm68k', 'microblaze',
+                         'mips64', 'nios2', 'or1k', 's390', 'sh2', 'sh4', 'sparc', 'sparc64', 'xtensa']
 
         for arch in architectures:
-            compiler_name = f'{arch}-linux-gcc'
-
-            if shutil.which(compiler_name) is not None:
-                print(f"Building {arch}")
-                data = ["make", f"ARCH={arch}", f"CROSS_COMPILE={arch}-linux-", "-j", str(num_cpus), "defconfig", target]
-                subprocess.check_output(data)
-                print(f"{arch} works")
-                
+            if shutil.which(f'{arch}-linux-gcc') is None:
+                continue
+            build_architecture(arch, f'{arch}-linux-gcc', num_cpus, target)
 
     except subprocess.CalledProcessError:
         warn("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES")
