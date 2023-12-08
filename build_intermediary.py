@@ -1,26 +1,37 @@
+import argparse
 import json
-import sys
+from pathlib import Path
 import threading
+import itertools
+from lib.utils import build, warn
 
-from lib.utils import build
-
-def execute_command(command, directory, semaphore):
+def execute_command(command, directory, semaphore, file):
     with semaphore:
+        print(f"BUILDING: {file}")
         build(command, directory)
 
-def main(commands, threads):
-    with open(commands) as file:
+def main(commands, threads, extension, additional_arg):
+    with open(commands, encoding='utf-8') as file:
         data = json.load(file)
-        
+
         semaphore = threading.Semaphore(threads)
-        
+
         threads = []
         for part in data:
             command = part['command'].split()
-            command[-2] = command[-2][:-1] + 'i'
-            command.append('-E')
 
-            thread = threading.Thread(target=execute_command, args=(command, part["directory"], semaphore))
+            for i, statement in enumerate(itertools.islice(command, len(command) - 1)):
+                if statement == '-o':
+                    command[i+1] = str(Path(command[i + 1]).with_suffix(extension))
+                    break
+            else:
+                warn(f"NO FILE FOUND IN COMMAND {part['file']}")
+                return False
+
+            command.append(additional_arg)
+
+            thread = threading.Thread(target=execute_command,
+                                      args=(command, part["directory"], semaphore, part["file"]))
             threads.append(thread)
             thread.start()
 
@@ -28,11 +39,19 @@ def main(commands, threads):
             thread.join()
 
 if __name__ == '__main__':
-    commands = sys.argv[1]
+    parser = argparse.ArgumentParser(description='''This script automatically generates an extension
+                                     for all files in compile_commands.json.''')
 
-    threads = 1
-
-    if len(sys.argv) > 2:
-        threads = int(sys.argv[2])
-    
-    main(commands, threads)
+    parser.add_argument('-c', '--commands', type=Path, required=True,
+                        help='Path to compile_commands.json')
+    parser.add_argument('-j', '--threads', type=int,
+                        help='Number of threads',
+                        default=1)
+    parser.add_argument('-e', '--extension', type=str,
+                        help='File extension type .i, .ll, .o etc',
+                        default='.i')
+    parser.add_argument('-a', '--additional_arg', type=str,
+                        help='Any additional arg necessary to build extension type',
+                        default='-E')
+    args = parser.parse_args()
+    main(args.commands, args.threads, args.extension, args.additional_arg)
