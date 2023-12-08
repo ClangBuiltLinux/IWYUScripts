@@ -47,7 +47,7 @@ def build_check(target: Path) -> bool:
         for arch in architectures:
             if shutil.which(f'{arch}-linux-gcc') is None:
                 continue
-            build_architecture(arch, f'{arch}-linux-gcc', num_cpus, target)
+            build_architecture(arch, f'CROSS_COMPILE={arch}-linux-', num_cpus, target)
 
     except subprocess.CalledProcessError:
         warn("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES")
