@@ -1,6 +1,6 @@
 [
    # If an architecture does not provide its own copy of asm/foo.h, then it will get an
-   # asm-generic/foo.h which can still be included as asm/foo,h
+   # asm-generic/foo.h which can still be included as asm/foo.h.
    # This list was generated from include/uapi/asm-generic/Kbuild
    { include: ["@.asm-generic/auxvec.h.", private, "<asm/auxvec.h>", "public"] },
    { include: ["@.asm-generic/bitsperlong.h.", private, "<asm/bitsperlong.h>", "private"] },
@@ -23,7 +23,7 @@
    { include: ["@.asm-generic/shmbuf.h.", private, "<asm/shmbuf.h>", "public"] },
    { include: ["@.asm-generic/sigcontext.h.", private, "<asm/sigcontext.h>", "public"] },
    { include: ["@.asm-generic/siginfo.h.", private, "<asm/siginfo.h>", "public"] },
-   { include: ["@.asm-generic/signal(-defs)?.h.", private, "<asm/signal.h>", "private"] },
+   { include: ["@.asm-generic/signal.h.", private, "<asm/signal.h>", "private"] },
    { include: ["@.asm-generic/socket.h.", private, "<asm/socket.h>", "public"] },
    { include: ["@.asm-generic/sockios.h.", private, "<asm/sockios.h>", "public"] },
    { include: ["@.asm-generic/stat.h.", private, "<asm/stat.h>", "public"] },
@@ -34,7 +34,7 @@
    { include: ["@.asm-generic/types.h.", private, "<asm/types.h>", "public"] },
    { include: ["@.asm-generic/unistd.h.", private, "<asm/unistd.h>", "public"] },
 
-   # This list was generated from include/asm-generic/Kbuild
+   # This list was generated from include/asm-generic/Kbuild.
    { include: ["@.asm-generic/atomic.h.", private, "<asm/atomic.h>", "public"] },
    { include: ["@.asm-generic/archrandom.h.", private, "<asm/archrandom.h>", "public"] },
    { include: ["@.asm-generic/barrier.h.", private, "<asm/barrier.h>", "public"] },
@@ -63,7 +63,6 @@
    { include: ["@.asm-generic/kdebug.h.", private, "<asm/kdebug.h>", "public"] },
    { include: ["@.asm-generic/kmap_size.h.", private, "<asm/kmap_size.h>", "public"] },
    { include: ["@.asm-generic/kprobes.h.", private, "<asm/kprobes.h>", "private"] },
-   { include: ["<asm-generic/kprobes.h>", private, "<asm/kprobes.h>", "private"] },
    { include: ["@.asm-generic/linkage.h.", private, "<asm/linkage.h>", "public"] },
    { include: ["@.asm-generic/local.h.", private, "<asm/local.h>", "public"] },
    { include: ["@.asm-generic/local64.h.", private, "<asm/local64.h>", "public"] },
@@ -96,11 +95,11 @@
    { include: ["@.asm-generic/xor.h.", private, "<asm/xor.h>", "public"] },
 
 
-   # The below headers were added by hand due to errors being found when the private headers were included
+   # The below headers were added by hand due to errors being found when the private headers were included.
    { include: ["<asm/bitsperlong.h>", private, "<linux/bits.h>", "public"] },
    { include: ["<asm/errno.h>", private, "<linux/errno.h>", "public"] },
    { include: ["<asm/resource.h>", private, "<linux/resource.h>", "public"] },
-   { include: ["@.asm/signal-defs.h.", private, "<linux/signal.h>", "public"] },
+   { include: ["@.asm-generic/signal-defs.h.", private, "<linux/signal.h>", "public"] },
    { include: ["<asm/signal.h>", private, "<linux/signal.h>", "public"] },
    { include: ["@.asm-generic/bitops*.", private, "<linux/bitops.h>", "public"] },
    { include: ["<asm/bug.h>", private, "<linux/bug.h>", "public"] },
