@@ -43,15 +43,16 @@ def build_check(target: Path) -> bool:
     num_cpus = len(os.sched_getaffinity(0))
     shutil.copy('.config', '.tmp.config')
     try:
-        # TODO: S390 has Clang support but for Clang-15, Debian currently supports Clang-14
-        clang_archs = ["arm", "arm64", "mips", "riscv", "powerpc", "x86", "um"]
+        # TODO: S390 has Clang support but only for Clang-15, Debian currently supports Clang-14.
+        # TODO: loongarch has Clang support but only for Clang-17, Debian currently supports Clang-14.
+        clang_archs = ["arm", "arm64", "i386", "mips", "riscv", "powerpc", "x86", "um"]
         for arch in clang_archs:
             if specific_arch and specific_arch != arch:
                 continue
             build_architecture(arch, 'LLVM=1', num_cpus, target)
 
         # Architecture crosstools found here:  https://mirrors.edge.kernel.org/pub/tools/crosstool
-        architectures = ['alpha', 'arc', 'csky', 'hppa', 'hppa64', 'i386', 'loongarch64', 'm68k', 'microblaze',
+        architectures = ['alpha', 'arc', 'csky', 'hppa', 'hppa64', 'loongarch64', 'm68k', 'microblaze',
                          'mips64', 'nios2', 'or1k', 's390', 'sh2', 'sh4', 'sparc', 'sparc64', 'xtensa']
 
         name_mappings = {
@@ -60,7 +61,6 @@ def build_check(target: Path) -> bool:
             'csky': 'csky',             # C-SKY
             'hppa': 'parisc',           # HP Precision Architecture
             'hppa64': 'parisc',         # HP Precision Architecture (64-bit)
-            'i386': 'x86',              # Intel 386 (often grouped under 'x86')
             'loongarch64': 'loongarch', # LoongArch 64-bit
             'm68k': 'm68k',             # Motorola 68000 series
             'microblaze': 'microblaze', # Xilinx MicroBlaze
