@@ -1,15 +1,15 @@
+import argparse
 import json
 import subprocess
-import os
-import sys
+from pathlib import Path
 
 def main(commands, output, expansion):
     sizes = []
     with open (commands) as file:
         data = json.load(file)
         for part in data:
-            filename = part["file"][:-1] + 'i'
-            res = int(str(subprocess.check_output(['wc', filename]), 'UTF-8').strip().split()[0])
+            filename = Path(part["file"]).with_suffix('.i')
+            res = int(str(subprocess.check_output(['wc', str(filename)]), 'UTF-8').strip().split()[0])
             
             if expansion:
                 res = res//int(str(subprocess.check_output(['wc', part["file"]]), 'UTF-8').strip().split()[0])
@@ -23,13 +23,13 @@ def main(commands, output, expansion):
             outfile.write("\n")
 
 
-
 if __name__ == '__main__':
-    commands = sys.argv[1]
-    output = sys.argv[2]
-    expand = False
-    for i in range(2, len(sys.argv)):
-        match sys.argv[i]:
-            case "-m":
-                expand = True
-    main(commands, output, expand)
+    parser = argparse.ArgumentParser(description='''This script attempts to refactor multiple
+                                    include lists without touching the headers themselves.''')
+
+    parser.add_argument('-c', '--commands', type=Path, help='Path to compile_commands.json')
+    parser.add_argument('-o', '--output', type=Path, help='Path to output text file')
+    parser.add_argument('-e', action='store_true',
+                        help='Calculate size increase instead of total size.')
+    args = parser.parse_args()
+    main(args.commands, args.output, args.e)
