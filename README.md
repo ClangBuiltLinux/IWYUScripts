@@ -1,12 +1,12 @@
 # IWYUScripts
 Miscellaneous scripts used to automated include-what-you-use on the linux kernel will be found here
 
-Run in the kernel repository
+To run any of these scripts. Run in the kernel repository
 ```bash
 make LLVM=1 defconfig all compile_commands.json -j $(nproc)
 ```
 
-Once that is finished run
+## single_iwyu.py
 
 ```bash
 ./single_iwyu.py -c compile_commands.json -s specific_file.c
@@ -39,12 +39,14 @@ When to Modify Tables:
    ```{ symbol: ["TOKEN", private, "asm/SOLUTION-FILE", public]},```
    Examples are found in symbol.imp
 
-Other Scripts:
+## auto_iwyu.py
 ```
 python auto-iwyu.py -c compile_commands.json
 ```
 The auto-iwyu script will attempt to build your whole compile_commands.json file and make changes automatically.
 
+
+## build_intermediary.py
 ```
 python build_intermediary.py -c compile_commands.json -j $(nproc)
 ```
