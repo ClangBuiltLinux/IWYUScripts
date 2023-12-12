@@ -55,24 +55,24 @@ def build_check(target: Path) -> bool:
                          'mips64', 'nios2', 'or1k', 's390', 'sh2', 'sh4', 'sparc', 'sparc64', 'xtensa']
 
         name_mappings = {
-            'alpha': 'alpha',       # DEC Alpha
-            'arc': 'arc',           # Argonaut RISC Core
-            'csky': 'csky',         # C-SKY
-            'hppa': 'parisc',       # HP Precision Architecture
-            'hppa64': 'parisc',   # HP Precision Architecture (64-bit)
-            'i386': 'x86',          # Intel 386 (often grouped under 'x86')
+            'alpha': 'alpha',           # DEC Alpha
+            'arc': 'arc',               # Argonaut RISC Core
+            'csky': 'csky',             # C-SKY
+            'hppa': 'parisc',           # HP Precision Architecture
+            'hppa64': 'parisc',         # HP Precision Architecture (64-bit)
+            'i386': 'x86',              # Intel 386 (often grouped under 'x86')
             'loongarch64': 'loongarch', # LoongArch 64-bit
-            'm68k': 'm68k',         # Motorola 68000 series
+            'm68k': 'm68k',             # Motorola 68000 series
             'microblaze': 'microblaze', # Xilinx MicroBlaze
-            'mips64': 'mips',       # MIPS (includes both MIPS32 and MIPS64)
-            'nios2': 'nios2',       # Altera Nios II
-            'or1k': 'openrisc',     # OpenRISC
-            's390': 's390',         # IBM System/390
-            'sh2': 'sh',            # SuperH (includes SH2 and SH4)
-            'sh4': 'sh',            # SuperH (includes SH2 and SH4)
-            'sparc': 'sparc',       # SPARC
-            'sparc64': 'sparc64',   # SPARC 64-bit
-            'xtensa': 'xtensa'      # Tensilica Xtensa
+            'mips64': 'mips',           # MIPS (includes both MIPS32 and MIPS64)
+            'nios2': 'nios2',           # Altera Nios II
+            'or1k': 'openrisc',         # OpenRISC
+            's390': 's390',             # IBM System/390
+            'sh2': 'sh',                # SuperH (includes SH2 and SH4)
+            'sh4': 'sh',                # SuperH (includes SH2 and SH4)
+            'sparc': 'sparc',           # SPARC
+            'sparc64': 'sparc64',       # SPARC 64-bit
+            'xtensa': 'xtensa'          # Tensilica Xtensa
         }
 
         for arch in architectures:
