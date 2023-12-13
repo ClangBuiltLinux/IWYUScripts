@@ -48,10 +48,14 @@ if __name__ == '__main__':
                         help='Number of threads',
                         default=1)
     parser.add_argument('-e', '--extension', type=str,
-                        help='File extension type .i, .ll, .o etc',
+                        help='File extension type .i, .ll, .s, or .bc',
                         default='.i')
-    parser.add_argument('-a', '--additional_arg', type=str,
-                        help='Any additional arg necessary to build extension type',
-                        default='-E')
+
     args = parser.parse_args()
-    main(args.commands, args.threads, args.extension, args.additional_arg)
+    arg_mapping = {
+        '.i': '-E',
+        '.s': '-S',
+        '.bc': '-emit-llvm',
+        '.ll': '-emit-llvm -S',
+    }
+    main(args.commands, args.threads, args.extension, arg_mapping[args.extension])
