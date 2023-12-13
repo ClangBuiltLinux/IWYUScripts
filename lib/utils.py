@@ -25,31 +25,62 @@ def build(command: List[str], directory: str):
         return False
     return True
 
+def build_architecture(arch, cross, num_cpus, target):
+    print(f"Building {arch}")
+    data = ["make", f"ARCH={arch}", cross, "-j", str(num_cpus), "defconfig", target]
+    subprocess.check_output(data)
+    print(f"{arch} works")
+
 def build_check(target: Path) -> bool:
     '''Checks if the linux kernel builds properly'''
+
+    specific_arch = None
+    path_parts = target.parts
+    if 'arch' in path_parts:
+        arch_index = path_parts.index('arch')
+        specific_arch = path_parts[arch_index + 1]
 
     num_cpus = len(os.sched_getaffinity(0))
     shutil.copy('.config', '.tmp.config')
     try:
-        print("Building arm")
-        data = ["make", "ARCH=arm", "LLVM=1", "-j", str(num_cpus), "defconfig", target]
-        subprocess.check_output(data)
-        print("arm works")
+        # TODO: S390 has Clang support but only for Clang-15, Debian currently supports Clang-14.
+        # TODO: loongarch has Clang support but only for Clang-17, Debian currently supports Clang-14.
+        clang_archs = ["arm", "arm64", "i386", "mips", "riscv", "powerpc", "x86", "um"]
+        for arch in clang_archs:
+            if specific_arch and specific_arch != arch:
+                continue
+            build_architecture(arch, 'LLVM=1', num_cpus, target)
 
-        print("Building arm64")
-        data[1] = "ARCH=arm64"
-        subprocess.check_output(data)
-        print("arm64 works")
+        # Architecture crosstools found here:  https://mirrors.edge.kernel.org/pub/tools/crosstool
+        architectures = ['alpha', 'arc', 'csky', 'hppa', 'hppa64', 'loongarch64', 'm68k', 'microblaze',
+                         'mips64', 'nios2', 'or1k', 's390', 'sh2', 'sh4', 'sparc', 'sparc64', 'xtensa']
 
-        print("Building riscv")
-        data[1] = "ARCH=riscv"
-        subprocess.check_output(data)
-        print("riscv works")
+        name_mappings = {
+            'alpha': 'alpha',           # DEC Alpha
+            'arc': 'arc',               # Argonaut RISC Core
+            'csky': 'csky',             # C-SKY
+            'hppa': 'parisc',           # HP Precision Architecture
+            'hppa64': 'parisc',         # HP Precision Architecture (64-bit)
+            'loongarch64': 'loongarch', # LoongArch 64-bit
+            'm68k': 'm68k',             # Motorola 68000 series
+            'microblaze': 'microblaze', # Xilinx MicroBlaze
+            'mips64': 'mips',           # MIPS (includes both MIPS32 and MIPS64)
+            'nios2': 'nios2',           # Altera Nios II
+            'or1k': 'openrisc',         # OpenRISC
+            's390': 's390',             # IBM System/390
+            'sh2': 'sh',                # SuperH (includes SH2 and SH4)
+            'sh4': 'sh',                # SuperH (includes SH2 and SH4)
+            'sparc': 'sparc',           # SPARC
+            'sparc64': 'sparc64',       # SPARC 64-bit
+            'xtensa': 'xtensa'          # Tensilica Xtensa
+        }
 
-        print("Building x86")
-        data[1] = "ARCH=x86"
-        subprocess.check_output(data)
-        print("x86 works")
+        for arch in architectures:
+            if specific_arch and specific_arch not in name_mappings[arch]:
+                continue
+            if shutil.which(f'{arch}-linux-gcc') is None:
+                continue
+            build_architecture(arch, f'CROSS_COMPILE={arch}-linux-', num_cpus, target)
 
     except subprocess.CalledProcessError:
         warn("WARNING: BUILD ERROR WITH ONE OR MORE ARCHITECTURES")
