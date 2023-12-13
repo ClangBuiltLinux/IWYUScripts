@@ -48,7 +48,7 @@ if __name__ == '__main__':
                         help='Number of threads',
                         default=1)
     parser.add_argument('-e', '--extension', type=str,
-                        help='File extension type .i, .ll, .o etc',
+                        help='File extension type .i, .ll, .s, or .bc',
                         default='.i')
 
     args = parser.parse_args()
