@@ -48,6 +48,6 @@ The auto-iwyu script will attempt to build your whole compile_commands.json file
 
 ## build_intermediary.py
 ```
-python build_intermediary.py -c compile_commands.json -j $(nproc)
+python build_intermediary.py -c compile_commands.json -j $(nproc) -e .ll
 ```
-The build intermediary file will build files with a specific file extension for the entire compile_commands.json. The default extension is .i but can be changed with the -e flag. Pass in whatever arguments are necessary with the -a flag the default is -E.
+The build intermediary file will build files with a specific file extension for the entire compile_commands.json. The default extension is .i but can be changed with the -e flag.
