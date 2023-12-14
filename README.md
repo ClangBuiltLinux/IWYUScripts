@@ -1,12 +1,12 @@
 # IWYUScripts
 Miscellaneous scripts used to automated include-what-you-use on the linux kernel will be found here
 
-Run in the kernel repository
+To run any of these scripts. Run in the kernel repository
 ```bash
 make LLVM=1 defconfig all compile_commands.json -j $(nproc)
 ```
 
-Once that is finished run
+## single_iwyu.py
 
 ```bash
 ./single_iwyu.py -c compile_commands.json -s specific_file.c
@@ -38,3 +38,16 @@ When to Modify Tables:
 5. If there are still problems. Find the source of the problematic file and replace all tokens that IWYU associates with that file with a better file. An example of this is asm-generic/percpu.h. It has many tokens that need to be manually associated with linux/percpu.h. Add the following line to symbol.imp force an association between a token and a header:
    ```{ symbol: ["TOKEN", private, "asm/SOLUTION-FILE", public]},```
    Examples are found in symbol.imp
+
+## auto_iwyu.py
+```
+python auto-iwyu.py -c compile_commands.json
+```
+The auto-iwyu script will attempt to build your whole compile_commands.json file and make changes automatically.
+
+
+## build_intermediary.py
+```
+python build_intermediary.py -c compile_commands.json -j $(nproc) -e .ll
+```
+The build intermediary file will build files with a specific file extension for the entire compile_commands.json. The default extension is .i but can be changed with the -e flag.
