@@ -2,7 +2,6 @@
     #If the directory is not architecture specific, add this filter to avoid
     #excess asm inclusions
     { include: ["@.asm/ptrace.h.", private, "<linux/ptrace.h>", "public"] }, 
-    { include: ["@.asm-generic/bitops*.", private, "<linux/bitops.h>", "public"] },
     { include: ["@.asm/bug.h.", private, "<linux/bug.h>", "public"] },
     { include: ["@.asm/delay.h.", private, "<linux/delay.h>", "public"] },
     { include: ["@.asm/io.h.", private, "<linux/io.h>", "public"] },
