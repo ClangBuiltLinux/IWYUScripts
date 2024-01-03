@@ -14,8 +14,15 @@ def main(commands, fixer_path, filters):
         count = 0
         for part in data:
             count += 1
-            print(count)
-            if not perform_iwyu(fixer_path, part, filters, current_dir):
+            print(count, part["file"])
+            if not "arch" in part["file"] and not perform_iwyu(
+                fixer_path,
+                part,
+                filters + [Path(current_dir), "nonarch.imp"],
+                current_dir,
+            ):
+                continue
+            elif not perform_iwyu(fixer_path, part, filters, current_dir):
                 return
 
 

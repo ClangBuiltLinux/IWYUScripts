@@ -22,7 +22,16 @@ def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
         if len(eligible) == 0:
             warn("NO FILE WITH IDENTIFIER FOUND")
         for part in eligible:
-            perform_iwyu(fixer_path, part, filters, current_dir, debug=DEBUG)
+            if not "arch" in part["file"]:
+                perform_iwyu(
+                    fixer_path,
+                    part,
+                    filters + [Path(current_dir), "nonarch.imp"],
+                    current_dir,
+                    debug=DEBUG,
+                )
+            else:
+                perform_iwyu(fixer_path, part, filters, current_dir, debug=DEBUG)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,20 @@
+[
+    #If the directory is not architecture specific, add this filter to avoid
+    #excess asm inclusions
+    { include: ["@.asm/ptrace.h.", private, "<linux/ptrace.h>", "public"] }, 
+    { include: ["@.asm-generic/bitops*.", private, "<linux/bitops.h>", "public"] },
+    { include: ["@.asm/bug.h.", private, "<linux/bug.h>", "public"] },
+    { include: ["@.asm/delay.h.", private, "<linux/delay.h>", "public"] },
+    { include: ["@.asm/io.h.", private, "<linux/io.h>", "public"] },
+    { include: ["@.asm/kprobes.h.", private, "<linux/kprobes.h>", "public"] },
+    { include: ["@.asm/module.h.", private, "<linux/module.h>", "public"] },
+    { include: ["@.asm/bitsperlong.h.", private, "<linux/bits.h>", "public"] },
+    { include: ["@.asm/errno.h.", private, "<linux/errno.h>", "public"] },
+    { include: ["@.asm/resource.h.", private, "<linux/resource.h>", "public"] },
+    { include: ["@.asm/signal.h.", private, "<linux/signal.h>", "public"] },
+    { include: ["@.asm/pci.h.", private, "<linux/pci.h>", "public"] },
+    { include: ["@.asm/timex.h.", private, "<linux/timex.h>", "public"] },
+    { include: ["@.asm/uaccess.h.", private, "<linux/uaccess.h>", "public"] },
+    { include: ["@.asm/pti.h.", private, "<linux/pti.h>", "public"] },
+    { include: ["@.asm/tsc.h.", private, "<linux/timex.h>", "public"] },
+]
