@@ -26,7 +26,7 @@ def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
                 perform_iwyu(
                     fixer_path,
                     part,
-                    filters + [Path(current_dir), "nonarch.imp"],
+                    filters + [Path(current_dir, "nonarch.imp")],
                     current_dir,
                     debug=DEBUG,
                 )
