@@ -9,8 +9,8 @@
     { include: ["@.asm/page_32.h.", private, "<asm/page.h>", "public"] },
     { include: ["@.asm/string_64.h.", private, "<linux/string.h>", "public"] },
 
-    # If an asm header has an asm-generic version or is present in every architecture 
-    # like bug.h we should use the linux version of the header instead
+    # If an asm header has an asm-generic version, or is present in every architecture 
+    # like bug.h, we should use the linux version of the header instead.
     { include: ["@.asm/ptrace.h.", private, "<linux/ptrace.h>", "public"] }, 
     { include: ["@.asm/bug.h.", private, "<linux/bug.h>", "public"] },
     { include: ["@.asm/delay.h.", private, "<linux/delay.h>", "public"] },
