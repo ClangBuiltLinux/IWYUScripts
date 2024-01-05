@@ -112,4 +112,5 @@
    { include: ["@.asm(-generic)?/early_ioremap.h.", private, "<linux/io.h>", "public"] },
    { include: ["@.asm-generic/mman-common.h.", private, "<asm/mman.h>", "public"] },
    { include: ["@.asm-generic/mshyperv.h.", private, "<asm/mshyperv.h>", "public"] },
+   { include: ["@.asm-generic/param.h.", private, "<asm/param.h>", "public"] },
 ]

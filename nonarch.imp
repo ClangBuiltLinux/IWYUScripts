@@ -1,13 +1,13 @@
 [
     # The following headers do not exist in every architecture and should be replaced
-    # if the .c file is not arch-specific
+    # if the .c file is not arch-specific, otherwise it is ok to include these
+    # asm/.h headers in arch/ .c files.
     { include: ["@.asm/page_types.h.", private, "<asm/page.h>", "public"] },
     { include: ["@.asm/pgtable_64_types.h.", private, "<asm/pgtable.h>", "public"] },
     { include: ["@.asm/pgtable_types.h.", private, "<asm/pgtable.h>", "public"] },
     { include: ["@.asm/page_64.h.", private, "<asm/page.h>", "public"] },
     { include: ["@.asm/page_32.h.", private, "<asm/page.h>", "public"] },
     { include: ["@.asm/string_64.h.", private, "<linux/string.h>", "public"] },
-    { include: ["@.asm-generic/param.h.", private, "<asm/param.h>", "public"] },
 
     # If an asm header has an asm-generic version or is present in every architecture 
     # like bug.h we should use the linux version of the header instead
