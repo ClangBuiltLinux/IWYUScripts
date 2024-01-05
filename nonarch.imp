@@ -1,0 +1,33 @@
+[
+    # The following headers do not exist in every architecture and should be replaced
+    # if the .c file is not arch-specific, otherwise it is ok to include these
+    # asm/.h headers in arch/ .c files.
+    { include: ["@.asm/page_types.h.", private, "<asm/page.h>", "public"] },
+    { include: ["@.asm/pgtable_64_types.h.", private, "<asm/pgtable.h>", "public"] },
+    { include: ["@.asm/pgtable_types.h.", private, "<asm/pgtable.h>", "public"] },
+    { include: ["@.asm/page_64.h.", private, "<asm/page.h>", "public"] },
+    { include: ["@.asm/page_32.h.", private, "<asm/page.h>", "public"] },
+    { include: ["@.asm/string_64.h.", private, "<linux/string.h>", "public"] },
+    { include: ["@.asm/tsc.h.", private, "<linux/timex.h>", "public"] },
+    { include: ["@.asm/pti.h.", private, "<linux/pti.h>", "public"] },
+
+    # If an asm header has an asm-generic like bug.h, we should use the linux
+    # version of the header instead.
+    { include: ["@.asm/bug.h.", private, "<linux/bug.h>", "public"] },
+    { include: ["@.asm/io.h.", private, "<linux/io.h>", "public"] },
+    { include: ["@.asm/kprobes.h.", private, "<linux/kprobes.h>", "public"] },
+    { include: ["@.asm/module.h.", private, "<linux/module.h>", "public"] },
+    { include: ["@.asm/bitsperlong.h.", private, "<linux/bits.h>", "public"] },
+    { include: ["@.asm/errno.h.", private, "<linux/errno.h>", "public"] },
+    { include: ["@.asm/resource.h.", private, "<linux/resource.h>", "public"] },
+    { include: ["@.asm/signal.h.", private, "<linux/signal.h>", "public"] },
+    { include: ["@.asm/pci.h.", private, "<linux/pci.h>", "public"] },
+    { include: ["@.asm/timex.h.", private, "<linux/timex.h>", "public"] },
+    { include: ["@.asm/uaccess.h.", private, "<linux/uaccess.h>", "public"] },
+
+    # If an asm header is present in every architecture we should use the
+    # linux version of the header instead
+    { include: ["@.asm/ptrace.h.", private, "<linux/ptrace.h>", "public"] }, 
+    { include: ["@.asm/delay.h.", private, "<linux/delay.h>", "public"] },
+    
+]
