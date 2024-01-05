@@ -8,12 +8,11 @@
     { include: ["@.asm/page_64.h.", private, "<asm/page.h>", "public"] },
     { include: ["@.asm/page_32.h.", private, "<asm/page.h>", "public"] },
     { include: ["@.asm/string_64.h.", private, "<linux/string.h>", "public"] },
+    { include: ["@.asm/tsc.h.", private, "<linux/timex.h>", "public"] },
 
-    # If an asm header has an asm-generic version, or is present in every architecture 
-    # like bug.h, we should use the linux version of the header instead.
-    { include: ["@.asm/ptrace.h.", private, "<linux/ptrace.h>", "public"] }, 
+    # If an asm header has an asm-generic like bug.h, we should use the linux
+    # version of the header instead.
     { include: ["@.asm/bug.h.", private, "<linux/bug.h>", "public"] },
-    { include: ["@.asm/delay.h.", private, "<linux/delay.h>", "public"] },
     { include: ["@.asm/io.h.", private, "<linux/io.h>", "public"] },
     { include: ["@.asm/kprobes.h.", private, "<linux/kprobes.h>", "public"] },
     { include: ["@.asm/module.h.", private, "<linux/module.h>", "public"] },
@@ -24,6 +23,11 @@
     { include: ["@.asm/pci.h.", private, "<linux/pci.h>", "public"] },
     { include: ["@.asm/timex.h.", private, "<linux/timex.h>", "public"] },
     { include: ["@.asm/uaccess.h.", private, "<linux/uaccess.h>", "public"] },
+
+    # If an asm header is present in every architecture we should use the
+    # linux version of the header instead
+    { include: ["@.asm/ptrace.h.", private, "<linux/ptrace.h>", "public"] }, 
+    { include: ["@.asm/delay.h.", private, "<linux/delay.h>", "public"] },
     { include: ["@.asm/pti.h.", private, "<linux/pti.h>", "public"] },
-    { include: ["@.asm/tsc.h.", private, "<linux/timex.h>", "public"] },
+    
 ]
