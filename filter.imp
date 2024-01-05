@@ -96,8 +96,8 @@
 
 
    # The below headers were added by hand due to errors being found when the private headers were included.
-   # Additionally, If an asm header has no asm-generic version like pgtable_64_types we can use a
-   # non-architecture specific header instead
+   # Additionally, If an asm header has no asm-generic version and is not present in every architecture 
+   # like pgtable_64_types we can use a non-architecture specific header instead
    { include: ["@.asm-generic/signal-defs.h.", private, "<linux/signal.h>", "public"] },
    { include: ["@.asm-generic/bitops*.", private, "<linux/bitops.h>", "public"] },
    { include: ["@.asm/percpu.h.", private, "<linux/percpu.h>", "public"] },

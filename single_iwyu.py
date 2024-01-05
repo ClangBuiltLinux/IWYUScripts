@@ -22,7 +22,7 @@ def main(commands: Path, fixer_path: Path, filters: List[Path], specific: str):
         if len(eligible) == 0:
             warn("NO FILE WITH IDENTIFIER FOUND")
         for part in eligible:
-            if not "linux/arch/" in part["file"]:
+            if not "/arch/" in part["file"]:
                 perform_iwyu(
                     fixer_path,
                     part,
